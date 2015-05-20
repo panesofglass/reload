@@ -10,6 +10,10 @@ Demonstrate building and watching F# compilations using only FAKE.
 * Run - runs the generated `.exe`
 * Watch - recompiles the `.exe` for any changes to any `.fs` files in the directory
 
+## Project.fsx
+
+Define your project using a [`project.fsx`](https://github.com/panesofglass/reload/blob/master/project.fsx) script.
+
 ## Running Watch on *nix
 
 Add the following `export` to your `.bash_profile`:
