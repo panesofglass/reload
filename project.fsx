@@ -9,16 +9,18 @@ type ProjectDef =
     {
         BaseDir: string
         Version: string
+        Output: string
         Files: string list
-        WithParams: FscParams -> FscParams
+        FscParams: FscParams
         GenerateAssemblyInfo: bool
     }
     static member Default =
         {
             BaseDir = System.IO.Path.GetFullPath "."
             Version = "1.0.0"
+            Output = ""
             Files = []
-            WithParams = id
+            FscParams = FscParams.Default
             GenerateAssemblyInfo = true
         }
 
@@ -26,8 +28,8 @@ type ProjectDef =
 let project: ProjectDef =
     { ProjectDef.Default with
         Files = ["Main.fs"]
-        WithParams = fun (defaults: FscParams) ->
-            { defaults with
+        FscParams =
+            { FscParams.Default with
                 Output = "main.exe"
                 // TODO: create a DSL for specifying library and target fx
                 References = ["packages/FSharp.Core/lib/net40/FSharp.Core.dll"] }

@@ -5,7 +5,6 @@
 open Fake
 open Fake.AssemblyInfoFile
 open Fake.ChangeWatcher
-open Fake.EnvironmentHelper
 open Fake.FscHelper
 open Fake.ProcessHelper
 open Reload.Project
@@ -27,10 +26,10 @@ let compile() =
         createAssemblyInfo()
         assemblyInfo::project.Files
     else project.Files
-    |> Fsc (project.WithParams)
+    |> Fsc (fun _ -> project.FscParams)
 
 let run() =
-    Shell.Exec project.Output |> ignore
+    Shell.Exec project.FscParams.Output |> ignore
 
 let watch() =
     use watcher =
@@ -48,7 +47,7 @@ let watch() =
     System.Console.ReadLine() |> ignore
     watcher.Dispose()
 
-Target "ProjectLoaded" ensureProjectLoaded
+Target "EnsureProjectLoaded" ensureProjectLoaded
 Target "AssemblyInfo" createAssemblyInfo
 Target "Compile" compile
 Target "Run" run
