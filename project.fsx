@@ -1,3 +1,5 @@
+module Reload.Project
+
 #I "packages/FAKE/tools"
 #r "FakeLib.dll"
 
@@ -8,7 +10,7 @@ type ProjectDef =
         BaseDir: string
         Version: string
         Files: string list
-        FscParams: FscParams -> FscParams
+        WithParams: FscParams -> FscParams
         GenerateAssemblyInfo: bool
     }
     static member Default =
@@ -16,7 +18,7 @@ type ProjectDef =
             BaseDir = System.IO.Path.GetFullPath "."
             Version = "1.0.0"
             Files = []
-            FscParams = id
+            WithParams = id
             GenerateAssemblyInfo = true
         }
 
@@ -24,7 +26,7 @@ type ProjectDef =
 let project: ProjectDef =
     { ProjectDef.Default with
         Files = ["Main.fs"]
-        FscParams = fun (defaults: FscParams) ->
+        WithParams = fun (defaults: FscParams) ->
             { defaults with
                 Output = "main.exe"
                 // TODO: create a DSL for specifying library and target fx

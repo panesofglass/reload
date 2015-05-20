@@ -1,5 +1,6 @@
 #I "packages/FAKE/tools"
 #r "FakeLib.dll"
+#load "project.fsx"
 
 open Fake
 open Fake.AssemblyInfoFile
@@ -7,8 +8,7 @@ open Fake.ChangeWatcher
 open Fake.EnvironmentHelper
 open Fake.FscHelper
 open Fake.ProcessHelper
-
-#load "project.fsx"
+open Reload.Project
 
 let ensureProjectLoaded() =
     tracefn "Project definition loaded for directory: %s" project.BaseDir
@@ -19,18 +19,18 @@ let createAssemblyInfo() =
     CreateFSharpAssemblyInfo (project.BaseDir + assemblyInfo)
         [Attribute.Title "Reload Demo"
          Attribute.Description "Demonstration of compiling and watching F# tools with FAKE"
-         Attribute.Version version
-         Attribute.FileVersion version]
+         Attribute.Version project.Version
+         Attribute.FileVersion project.Version]
 
 let compile() =
     if project.GenerateAssemblyInfo then
         createAssemblyInfo()
         assemblyInfo::project.Files
-    else files
-    |> Fsc project.FscParams
+    else project.Files
+    |> Fsc (project.WithParams)
 
 let run() =
-    Shell.Exec output |> ignore
+    Shell.Exec project.Output |> ignore
 
 let watch() =
     use watcher =
