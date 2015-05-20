@@ -20,14 +20,14 @@ let files =
     |> List.ofArray
     |> (fun xs -> assemblyInfo::xs)
 
-Target "AssemblyInfo" <| fun _ ->
+let createAssemblyInfo() =
     CreateFSharpAssemblyInfo (defaultBaseDir + assemblyInfo)
         [Attribute.Title "Reload Demo"
          Attribute.Description "Demonstration of compiling and watching F# tools with FAKE"
          Attribute.Version version
          Attribute.FileVersion version]
 
-Target "Compile" <| fun _ ->
+let compile() =
     // NOTE: file order matters, so this must be explicit.
     // TODO: allow an environVar to specify the file list.
     files
@@ -36,8 +36,12 @@ Target "Compile" <| fun _ ->
                 Output = output
                 References = ["packages/FSharp.Core/lib/net40/FSharp.Core.dll"] })
 
-Target "Run" <| fun _ ->
+let run() =
     Shell.Exec output |> ignore
+
+Target "AssemblyInfo" createAssemblyInfo
+Target "Compile" compile
+Target "Run" run
 
 Target "Watch" <| fun _ ->
     use watcher =
@@ -46,7 +50,11 @@ Target "Watch" <| fun _ ->
           Excludes = [assemblyInfo] }
         |> WatchChanges (fun changes ->
             tracefn "%A" changes
-            Run "Run")
+            // TODO: restore target running so as not to duplicate the dependency chain. https://github.com/fsharp/FAKE/issues/791
+            //Run "Run"
+            createAssemblyInfo()
+            compile()
+            run())
 
     // TODO: This appears to block.
     System.Console.ReadLine() |> ignore
