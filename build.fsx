@@ -8,11 +8,20 @@ open Fake.EnvironmentHelper
 open Fake.FscHelper
 open Fake.ProcessHelper
 
+let assemblyInfo = "AssemblyInfo.fs"
+let defaultBaseDir = System.IO.Path.GetFullPath "."
 let version = environVarOrDefault "version" "1.0.0"
-let exeName = environVarOrDefault "exeName" "main.exe"
+// TODO: require this parameter
+let output = environVarOrDefault "output" "main.exe"
+// TODO: require this parameter
+let files =
+    environVarOrDefault "files" "Main.fs"
+    |> (fun str -> str.Split([|','|]))
+    |> List.ofArray
+    |> (fun xs -> assemblyInfo::xs)
 
 Target "AssemblyInfo" <| fun _ ->
-    CreateFSharpAssemblyInfo "./AssemblyInfo.fs"
+    CreateFSharpAssemblyInfo (defaultBaseDir + assemblyInfo)
         [Attribute.Title "Reload Demo"
          Attribute.Description "Demonstration of compiling and watching F# tools with FAKE"
          Attribute.Version version
@@ -21,20 +30,20 @@ Target "AssemblyInfo" <| fun _ ->
 Target "Compile" <| fun _ ->
     // NOTE: file order matters, so this must be explicit.
     // TODO: allow an environVar to specify the file list.
-    ["AssemblyInfo.fs"
-     "Main.fs"]
+    files
     |> Fsc (fun p ->
             { p with
-                Output = exeName
+                Output = output
                 References = ["packages/FSharp.Core/lib/net40/FSharp.Core.dll"] })
 
 Target "Run" <| fun _ ->
-    Shell.Exec exeName |> ignore
+    Shell.Exec output |> ignore
 
 Target "Watch" <| fun _ ->
     use watcher =
-        !!"./**/*.fs"
-        --"AssemblyInfo.fs"
+        { BaseDirectory = defaultBaseDir
+          Includes = files |> List.filter ((<>) assemblyInfo)
+          Excludes = [assemblyInfo] }
         |> WatchChanges (fun changes ->
             tracefn "%A" changes
             Run "Run")
@@ -44,6 +53,7 @@ Target "Watch" <| fun _ ->
     watcher.Dispose()
 
 Target "Help" <| fun _ ->
+    // TODO: Include instructions for specifying the output name and files to compile.
     printfn "build.(cmd|sh) [<target>] [options]"
     printfn @"for FAKE help: packages\FAKE\tools\FAKE.exe --help"
     printfn "targets:"
