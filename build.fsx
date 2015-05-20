@@ -19,8 +19,10 @@ Target "AssemblyInfo" <| fun _ ->
          Attribute.FileVersion version]
 
 Target "Compile" <| fun _ ->
-    !!"*.fs"
-    |> List.ofSeq
+    // NOTE: file order matters, so this must be explicit.
+    // TODO: allow an environVar to specify the file list.
+    ["AssemblyInfo.fs"
+     "Main.fs"]
     |> Fsc (fun p ->
             { p with
                 Output = exeName
@@ -31,7 +33,7 @@ Target "Run" <| fun _ ->
 
 Target "Watch" <| fun _ ->
     use watcher =
-        !!"*.fs"
+        !!"./**/*.fs"
         --"AssemblyInfo.fs"
         |> WatchChanges (fun changes ->
             tracefn "%A" changes
@@ -54,5 +56,6 @@ Target "Help" <| fun _ ->
 "AssemblyInfo"
 ==> "Compile"
 ==> "Run"
+==> "Watch"
 
 RunTargetOrDefault "Help"
