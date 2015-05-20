@@ -51,7 +51,7 @@ Target "Watch" <| fun _ ->
         |> WatchChanges (fun changes ->
             tracefn "%A" changes
             // TODO: restore target running so as not to duplicate the dependency chain. https://github.com/fsharp/FAKE/issues/791
-            //Run "Run"
+            //Run "Run")
             createAssemblyInfo()
             compile()
             run())
