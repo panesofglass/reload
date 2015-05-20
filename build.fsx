@@ -3,6 +3,7 @@
 
 open Fake
 open Fake.AssemblyInfoFile
+open Fake.ChangeWatcher
 open Fake.EnvironmentHelper
 open Fake.FscHelper
 open Fake.ProcessHelper
@@ -40,13 +41,18 @@ Target "Watch" <| fun _ ->
     System.Console.ReadLine() |> ignore
     watcher.Dispose()
 
-Target "Default" DoNothing
+Target "Help" <| fun _ ->
+    printfn "build.(cmd|sh) [<target>] [options]"
+    printfn @"for FAKE help: packages\FAKE\tools\FAKE.exe --help"
+    printfn "targets:"
+    printfn "  * AssemblyInfo - generates an `AssemblyInfo.fs`"
+    printfn "  * Compile - builds a `.exe` from any `.fs` files in the root directory"
+    printfn "  * Help - displays this message"
+    printfn "  * Run - runs the generated `.exe`"
+    printfn "  * Watch - recompiles and runs the `.exe` for any changes to any `.fs` files in the directory"
 
 "AssemblyInfo"
 ==> "Compile"
-==> "Default"
-
-"Default"
 ==> "Run"
 
-RunTargetOrDefault "Default"
+RunTargetOrDefault "Help"
