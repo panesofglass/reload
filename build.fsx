@@ -15,7 +15,7 @@ let ensureProjectLoaded() =
 let assemblyInfo = "AssemblyInfo.fs"
 
 let createAssemblyInfo() =
-    CreateFSharpAssemblyInfo (project.BaseDir + assemblyInfo)
+    CreateFSharpAssemblyInfo (System.IO.Path.Combine(project.BaseDir, assemblyInfo))
         [Attribute.Title "Reload Demo"
          Attribute.Description "Demonstration of compiling and watching F# tools with FAKE"
          Attribute.Version project.Version
